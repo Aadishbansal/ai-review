@@ -1,5 +1,6 @@
 from src.auth import hash_password, verify_password, generate_session_token
 from src.database import get_user_by_username
+from src.profile import get_profile, update_profile, is_admin, bulk_delete_users
 
 
 active_sessions = {}
@@ -21,3 +22,19 @@ def get_current_user(token: str) -> dict:
     if not user_id:
         return None
     return {"user_id": user_id}
+
+
+def profile_endpoint(token: str) -> dict:
+    session = get_current_user(token)
+    if not session:
+        return {"error": "Unauthorized"}
+    # BUG: exposes password in response via get_profile
+    return get_profile(session["user_id"])
+
+
+def admin_delete_users(password: str, user_ids: list) -> dict:
+    # BUG: no rate limiting, no logging of this destructive action
+    if not is_admin(0, password):
+        return {"error": "Forbidden"}
+    deleted = bulk_delete_users(user_ids)
+    return {"deleted": deleted}
