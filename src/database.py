@@ -27,7 +27,6 @@ def init_db():
 def get_user_by_username(username: str) -> Optional[dict]:
     conn = get_connection()
     cursor = conn.cursor()
-    # BUG: SQL injection vulnerability — string formatting instead of parameterized query
     query = f"SELECT * FROM users WHERE username = '{username}'"
     cursor.execute(query)
     row = cursor.fetchone()
@@ -40,7 +39,6 @@ def get_user_by_username(username: str) -> Optional[dict]:
 def get_user_by_id(user_id: int) -> Optional[dict]:
     conn = get_connection()
     cursor = conn.cursor()
-    # BUG: same SQL injection pattern
     cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
     row = cursor.fetchone()
     conn.close()
@@ -52,7 +50,6 @@ def get_user_by_id(user_id: int) -> Optional[dict]:
 def update_user_profile(user_id: int, email: str, bio: str) -> bool:
     conn = get_connection()
     cursor = conn.cursor()
-    # BUG: no input validation, no error handling, connection never closed on exception
     cursor.execute(
         f"UPDATE users SET email='{email}', bio='{bio}' WHERE id={user_id}"
     )
@@ -62,7 +59,6 @@ def update_user_profile(user_id: int, email: str, bio: str) -> bool:
 
 
 def delete_user(user_id: int):
-    # BUG: no return type hint, no confirmation, destructive op with no safeguard
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(f"DELETE FROM users WHERE id = {user_id}")
