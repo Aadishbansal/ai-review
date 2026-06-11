@@ -28,12 +28,10 @@ def profile_endpoint(token: str) -> dict:
     session = get_current_user(token)
     if not session:
         return {"error": "Unauthorized"}
-    # BUG: exposes password in response via get_profile
     return get_profile(session["user_id"])
 
 
 def admin_delete_users(password: str, user_ids: list) -> dict:
-    # BUG: no rate limiting, no logging of this destructive action
     if not is_admin(0, password):
         return {"error": "Forbidden"}
     deleted = bulk_delete_users(user_ids)
